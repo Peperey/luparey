@@ -51,13 +51,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix as ComposeColorMatrix
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -210,22 +205,7 @@ fun LuparyScreen() {
                 )
             } else {
                 AndroidView(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .drawWithContent {
-                            // Aplica el filtro en vivo a la vista de la cámara
-                            val paint = Paint().apply {
-                                colorFilter = ColorFilter.colorMatrix(
-                                    ComposeColorMatrix(filtro.valores)
-                                )
-                            }
-                            drawContext.canvas.saveLayer(
-                                Rect(0f, 0f, size.width, size.height),
-                                paint
-                            )
-                            drawContent()
-                            drawContext.canvas.restore()
-                        },
+                    modifier = Modifier.fillMaxSize(),
                     factory = { ctx ->
                         PreviewView(ctx).also { previewView ->
                             val future = ProcessCameraProvider.getInstance(ctx)
@@ -311,14 +291,25 @@ fun LuparyScreen() {
                         valueRange = 40f..300f,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { dpPorMmAZoom1 = longitudBarraDp / zoom }) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = { dpPorMmAZoom1 = longitudBarraDp / zoom },
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text("Fijar 1 mm")
                         }
-                        Button(onClick = { torchOn = !torchOn }) {
+                        Button(
+                            onClick = { torchOn = !torchOn },
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(if (torchOn) "Apagar luz" else "Linterna")
                         }
-                        Button(onClick = {
+                    }
+                    Button(
+                        onClick = {
                             imageCapture?.takePicture(
                                 ContextCompat.getMainExecutor(context),
                                 object : ImageCapture.OnImageCapturedCallback() {
@@ -336,25 +327,33 @@ fun LuparyScreen() {
                                     }
                                 }
                             )
-                        }) {
-                            Text("Congelar")
-                        }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Congelar")
                     }
-                    FiltrosFila(seleccionado = filtro, alElegir = { filtro = it })
                 } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { fotoCongelada = null }) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = { fotoCongelada = null },
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text("Volver")
                         }
-                        Button(onClick = {
-                            val imagen = filtrada
-                            val ok = guardarEnGaleria(context, imagen)
-                            Toast.makeText(
-                                context,
-                                if (ok) "Guardada en Pictures/luparey" else "No se pudo guardar",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }) {
+                        Button(
+                            onClick = {
+                                val ok = guardarEnGaleria(context, filtrada)
+                                Toast.makeText(
+                                    context,
+                                    if (ok) "Guardada en Pictures/luparey" else "No se pudo guardar",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text("Guardar")
                         }
                     }
